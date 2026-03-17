@@ -3,12 +3,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { validateSameScopeImportsOptions } = require('../lib/options');
+const { isIgnoredTargetScope } = require('../lib/tags');
 
 test('accepts valid options', () => {
   const result = validateSameScopeImportsOptions({
     crossScopeAllowedTags: ['type:shell'],
     scopePrefix: 'scope:',
-    ignoredScopes: ['scope:shared'],
+    ignoredTargetScopes: ['scope:shared'],
   });
 
   assert.equal(result.valid, true);
@@ -18,7 +19,7 @@ test('rejects missing crossScopeAllowedTags', () => {
   const result = validateSameScopeImportsOptions({
     crossScopeAllowedTags: [],
     scopePrefix: 'scope:',
-    ignoredScopes: [],
+    ignoredTargetScopes: [],
   });
 
   assert.equal(result.valid, false);
@@ -29,7 +30,7 @@ test('rejects invalid crossScopeAllowedTags entry type', () => {
   const result = validateSameScopeImportsOptions({
     crossScopeAllowedTags: ['type:shell', 123],
     scopePrefix: 'scope:',
-    ignoredScopes: [],
+    ignoredTargetScopes: [],
   });
 
   assert.equal(result.valid, false);
@@ -40,20 +41,36 @@ test('rejects empty scopePrefix', () => {
   const result = validateSameScopeImportsOptions({
     crossScopeAllowedTags: ['type:shell'],
     scopePrefix: '   ',
-    ignoredScopes: [],
+    ignoredTargetScopes: [],
   });
 
   assert.equal(result.valid, false);
   assert.match(result.reason, /scopePrefix/);
 });
 
-test('rejects ignoredScopes containing non-string values', () => {
+test('rejects ignoredTargetScopes containing non-string values', () => {
   const result = validateSameScopeImportsOptions({
     crossScopeAllowedTags: ['type:shell'],
     scopePrefix: 'scope:',
-    ignoredScopes: ['scope:shared', false],
+    ignoredTargetScopes: ['scope:shared', false],
   });
 
   assert.equal(result.valid, false);
-  assert.match(result.reason, /ignoredScopes/);
+  assert.match(result.reason, /ignoredTargetScopes/);
+});
+
+test('ignores only target scopes listed in ignoredTargetScopes', () => {
+  assert.equal(isIgnoredTargetScope('scope:shared', ['scope:shared']), true);
+  assert.equal(isIgnoredTargetScope('scope:cart', ['scope:shared']), false);
+});
+
+test('rejects legacy ignoredScopes option', () => {
+  const result = validateSameScopeImportsOptions({
+    crossScopeAllowedTags: ['type:shell'],
+    scopePrefix: 'scope:',
+    ignoredScopes: ['scope:shared'],
+  });
+
+  assert.equal(result.valid, false);
+  assert.match(result.reason, /ignoredTargetScopes/);
 });

@@ -7,7 +7,11 @@ const {
   resolveTargetProject,
 } = require('../lib/project-graph');
 const { validateSameScopeImportsOptions } = require('../lib/options');
-const { getScopeTag, isCrossScopeAllowedProject } = require('../lib/tags');
+const {
+  getScopeTag,
+  isCrossScopeAllowedProject,
+  isIgnoredTargetScope,
+} = require('../lib/tags');
 
 const RULE_NAME = 'same-scope-imports';
 
@@ -38,7 +42,7 @@ module.exports = ESLintUtils.RuleCreator(() =>
           reportMissingScopeTags: {
             type: 'boolean',
           },
-          ignoredScopes: {
+          ignoredTargetScopes: {
             type: 'array',
             items: { type: 'string' },
           },
@@ -63,7 +67,7 @@ module.exports = ESLintUtils.RuleCreator(() =>
       scopePrefix: 'scope:',
       checkExports: true,
       reportMissingScopeTags: true,
-      ignoredScopes: [],
+      ignoredTargetScopes: [],
     },
   ],
   create(context, [options]) {
@@ -148,10 +152,7 @@ module.exports = ESLintUtils.RuleCreator(() =>
         return;
       }
 
-      if (
-        options.ignoredScopes.includes(sourceScope) ||
-        options.ignoredScopes.includes(targetScope)
-      ) {
+      if (isIgnoredTargetScope(targetScope, options.ignoredTargetScopes)) {
         return;
       }
 
