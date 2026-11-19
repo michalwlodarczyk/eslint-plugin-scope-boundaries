@@ -11,9 +11,8 @@ npm install --save-dev eslint-plugin-scope-boundaries
 Peer dependencies expected in consumer project:
 - `eslint`
 - `@typescript-eslint/utils`
-- `@nx/devkit`
-- `@nx/eslint-plugin`
-- `nx`
+- `@nx/devkit` (`^24.0.0`)
+- `nx` (`^24.0.0`)
 
 ## Usage
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const { ESLintUtils, AST_NODE_TYPES } = require('@typescript-eslint/utils');
-const { isProjectGraphProjectNode } = require('nx/src/config/project-graph');
+const { isProjectGraphProjectNode } = require('@nx/devkit/internal');
 const {
   createProjectGraphContext,
   resolveTargetProject,
